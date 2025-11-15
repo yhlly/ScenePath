@@ -1,9 +1,4 @@
-//
 //  CollectionManager.swift
-//  ScenePath
-//
-//  增强的收集功能管理器 - 带详细Debug
-//
 
 import Foundation
 import SwiftData

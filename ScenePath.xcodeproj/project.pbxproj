@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		913C47D12E33C6D2003D6A90 /* ScenePath.app in Sources */ = {isa = PBXBuildFile; fileRef = 9107251E2E059AD1005A81F7 /* ScenePath.app */; };
 		91F11A862E334F6A0064E986 /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F11A852E334F6A0064E986 /* ARKit.framework */; };
 /* End PBXBuildFile section */
 
@@ -135,7 +134,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				913C47D12E33C6D2003D6A90 /* ScenePath.app in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,9 +1,4 @@
-//
 //  CLLocationCoordinate2D+Extensions.swift
-//  ScenePath
-//
-//  CoreLocation 扩展
-//
 
 import CoreLocation
 
