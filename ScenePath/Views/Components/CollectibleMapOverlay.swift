@@ -1,9 +1,4 @@
-//
 //  CollectibleMapOverlay.swift
-//  ScenePath
-//
-//  地图收集点叠加层组件 - 修复版本
-//
 
 import SwiftUI
 import MapKit
@@ -279,8 +274,6 @@ struct CollectibleDistanceIndicator: View {
         }
     }
 }
-
-// MARK: - Preview
 
 #Preview {
     CollectibleMapOverlayPreview()

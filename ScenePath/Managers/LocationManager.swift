@@ -1,9 +1,4 @@
-//
 //  LocationManager.swift
-//  ScenePath
-//
-//  位置管理器 - 增强版：支持持续位置更新
-//
 
 import Foundation
 import CoreLocation
@@ -18,7 +13,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var locationError: String?
     @Published var heading: CLHeading?
     
-    // 新增：导航相关状态
+    // 导航相关状态
     @Published var isNavigationActive = false
     @Published var speed: Double = 0 // 米/秒
     @Published var course: Double = 0 // 方向，以度为单位
@@ -66,7 +61,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
     }
     
-    // 新增：开始导航模式（持续更新位置）
+    // 开始导航模式（持续更新位置）
     func startNavigation() {
         isNavigationActive = true
         
@@ -78,10 +73,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         manager.startUpdatingLocation()
         manager.startUpdatingHeading()
         
-        print("🧭 导航模式已开启：持续位置和方向更新")
     }
     
-    // 新增：停止导航模式
+    // 停止导航模式
     func stopNavigation() {
         isNavigationActive = false
         
@@ -92,7 +86,6 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         manager.stopUpdatingLocation()
         manager.stopUpdatingHeading()
         
-        print("🧭 导航模式已停止")
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -129,7 +122,6 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             if self.isNavigationActive {
                 self.speed = location.speed > 0 ? location.speed : 0
                 self.course = location.course >= 0 ? location.course : 0
-                print("🧭 导航更新: 速度 \(self.speed)m/s, 方向 \(self.course)°")
             }
         }
         
@@ -149,7 +141,6 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         DispatchQueue.main.async {
             self.heading = newHeading
-            print("🧭 方向更新: \(newHeading.trueHeading)°")
         }
     }
     
@@ -217,7 +208,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
                authorizationStatus == .notDetermined
     }
     
-    // 新增：获取到某个坐标的距离（米）
+    // 获取到某个坐标的距离（米）
     func distanceTo(coordinate: CLLocationCoordinate2D) -> Double? {
         guard let currentLocation = currentLocation else { return nil }
         
@@ -227,13 +218,13 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         return from.distance(from: to)
     }
     
-    // 新增：检查用户是否接近某个坐标点（用于导航中判断是否到达某个转弯点）
+    // 检查用户是否接近某个坐标点（用于导航中判断是否到达某个转弯点）
     func isNearCoordinate(_ coordinate: CLLocationCoordinate2D, threshold: Double = 20) -> Bool {
         guard let distance = distanceTo(coordinate: coordinate) else { return false }
         return distance <= threshold
     }
     
-    // 新增：计算用户当前位置到路线上最近点的投影（用于判断用户是否偏离路线）
+    // 计算用户当前位置到路线上最近点的投影（用于判断用户是否偏离路线）
     func findClosestPointOnRoute(route: MKRoute) -> (coordinate: CLLocationCoordinate2D, distance: Double)? {
         guard let userLocation = currentLocation else { return nil }
         

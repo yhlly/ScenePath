@@ -1,9 +1,4 @@
-//
 //  NavigationModels.swift
-//  ScenePath
-//
-//  导航相关数据模型 - 更新版
-//
 
 import Foundation
 import CoreLocation

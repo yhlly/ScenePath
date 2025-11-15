@@ -1,9 +1,4 @@
-//
 //  RouteService.swift
-//  ScenePath
-//
-//  路线计算服务 - 修正角度计算和转向判断逻辑
-//
 
 import Foundation
 import CoreLocation
@@ -23,19 +18,10 @@ class RouteService {
     // 支持特殊路线的路线计算方法 - 重新实现
     func calculateRouteWithSpecialType(from start: CLLocationCoordinate2D, to end: CLLocationCoordinate2D, transportType: TransportationType, specialConfig: SpecialRouteConfig, completion: @escaping ([RouteInfo]) -> Void) {
         
-        print("🚀 开始计算路线:")
-        print("  📍 起点: (\(start.latitude), \(start.longitude))")
-        print("  📍 终点: (\(end.latitude), \(end.longitude))")
-        print("  🚗 交通方式: \(transportType.rawValue)")
-        print("  🎯 路线类型: \(specialConfig.specialType.rawValue)")
-        
         if specialConfig.specialType == .none {
-            print("  ➡️ 执行常规路线计算")
             // 常规路线：直接计算最优路线
             calculateNormalRoutes(from: start, to: end, transportType: transportType, completion: completion)
         } else {
-            print("  ➡️ 执行特殊路线计算")
-            print("  🔍 搜索关键词: \(specialConfig.priorityKeywords)")
             // 特殊路线：先搜索POI，然后计算多段路线
             calculateSpecialRoutes(from: start, to: end, transportType: transportType, specialConfig: specialConfig, completion: completion)
         }
@@ -43,7 +29,6 @@ class RouteService {
     
     // 计算常规路线 - 修改后的方法
     private func calculateNormalRoutes(from start: CLLocationCoordinate2D, to end: CLLocationCoordinate2D, transportType: TransportationType, completion: @escaping ([RouteInfo]) -> Void) {
-        print("📊 开始计算常规路线...")
         
         let request = MKDirections.Request()
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: start))
@@ -54,19 +39,15 @@ class RouteService {
         let directions = MKDirections(request: request)
         directions.calculate { response, error in
             guard let response = response, !response.routes.isEmpty else {
-                print("❌ 常规路线计算失败:")
                 if let error = error {
-                    print("  错误: \(error.localizedDescription)")
                 }
                 
                 // 返回空数组
-                print("  ➡️ 返回空数组")
                 let simulatedRoutes = self.generateSimulatedNormalRoutes(from: start, to: end, transportType: transportType)
                 completion(simulatedRoutes)
                 return
             }
             
-            print("✅ 成功获取常规路线，共\(response.routes.count)条:")
             var routeInfos: [RouteInfo] = []
             
             // 对路线进行分类和排序
@@ -96,18 +77,11 @@ class RouteService {
                 let distance = String(format: "%.1f公里", fastestRoute.distance / 1000)
                 let duration = String(format: "%.0f分钟", fastestRoute.expectedTravelTime / 60)
                 
-                print("  📍 最快路线:")
-                print("    🚗 真实距离: \(fastestRoute.distance)米 -> \(distance)")
-                print("    ⏱️ 真实时间: \(fastestRoute.expectedTravelTime)秒 -> \(duration)")
-                print("    📊 数据来源: MapKit真实数据")
-                
                 // 价格 - 修改为全部免费
                 let price = ""
                 
-                print("    💰 价格: \(price)")
                 
                 let instructions = self.generateNavigationInstructions(for: fastestRoute, transportType: transportType)
-                print("    🧭 导航指令: \(instructions.count)条")
                 
                 // 基于真实距离确定难度
                 let difficulty: RouteDifficulty = fastestRoute.distance / 1000 < 5 ? .easy : (fastestRoute.distance / 1000 < 15 ? .medium : .hard)
@@ -137,16 +111,10 @@ class RouteService {
                 let distance = String(format: "%.1f公里", shortestRoute.distance / 1000)
                 let duration = String(format: "%.0f分钟", shortestRoute.expectedTravelTime / 60)
                 
-                print("  📍 最短路线:")
-                print("    🚗 真实距离: \(shortestRoute.distance)米 -> \(distance)")
-                print("    ⏱️ 真实时间: \(shortestRoute.expectedTravelTime)秒 -> \(duration)")
-                print("    📊 数据来源: MapKit真实数据")
-                
                 // 价格 - 修改为全部免费
                 let price = ""
                 
                 let instructions = self.generateNavigationInstructions(for: shortestRoute, transportType: transportType)
-                print("    🧭 导航指令: \(instructions.count)条")
                 
                 // 基于真实距离确定难度
                 let difficulty: RouteDifficulty = shortestRoute.distance / 1000 < 5 ? .easy : (shortestRoute.distance / 1000 < 15 ? .medium : .hard)
@@ -172,10 +140,6 @@ class RouteService {
             for route in remainingRoutes.prefix(1) { // 只处理最多1条备选路线
                 let distance = String(format: "%.1f公里", route.distance / 1000)
                 let duration = String(format: "%.0f分钟", route.expectedTravelTime / 60)
-                
-                print("  📍 备选路线:")
-                print("    🚗 真实距离: \(route.distance)米 -> \(distance)")
-                print("    ⏱️ 真实时间: \(route.expectedTravelTime)秒 -> \(duration)")
                 
                 // 价格 - 修改为全部免费
                 let price = ""
@@ -208,10 +172,6 @@ class RouteService {
                 let distance = String(format: "%.1f公里", recommendedRoute.distance / 1000)
                 let duration = String(format: "%.0f分钟", recommendedRoute.expectedTravelTime / 60)
                 
-                print("  📍 推荐路线:")
-                print("    🚗 真实距离: \(recommendedRoute.distance)米 -> \(distance)")
-                print("    ⏱️ 真实时间: \(recommendedRoute.expectedTravelTime)秒 -> \(duration)")
-                
                 // 价格 - 修改为全部免费
                 let price = ""
                 
@@ -237,7 +197,6 @@ class RouteService {
                 routeInfos.append(routeInfo)
             }
             
-            print("📊 常规路线计算完成，返回\(routeInfos.count)条路线")
             completion(routeInfos)
         }
     }
@@ -245,19 +204,16 @@ class RouteService {
     // 计算特殊路线 - 核心实现
     private func calculateSpecialRoutes(from start: CLLocationCoordinate2D, to end: CLLocationCoordinate2D, transportType: TransportationType, specialConfig: SpecialRouteConfig, completion: @escaping ([RouteInfo]) -> Void) {
         
-        print("🎯 开始计算特殊路线: \(specialConfig.specialType.rawValue)")
         
         // 第一步：搜索相关POI
         searchPOIsForSpecialRoute(from: start, to: end, specialConfig: specialConfig) { pois in
             
-            print("🔍 POI搜索结果: 找到\(pois.count)个相关地点")
             for (index, poi) in pois.enumerated() {
                 print("  \(index + 1). \(poi.name ?? "未知地点") - \(poi.placemark.title ?? "")")
             }
             
             if pois.isEmpty {
                 // 如果没找到POI，fallback到常规路线（使用真实数据）
-                print("⚠️ 没有找到适合的\(specialConfig.specialType.rawValue)POI，使用常规路线")
                 self.calculateNormalRoutes(from: start, to: end, transportType: transportType, completion: completion)
                 return
             }
@@ -265,44 +221,35 @@ class RouteService {
             // 第二步：选择最佳中间点
             let selectedPOIs = self.selectBestPOIs(pois: pois, from: start, to: end, maxCount: 1)
             
-            print("🎯 POI选择结果: 从\(pois.count)个中选择了\(selectedPOIs.count)个")
             for (index, poi) in selectedPOIs.enumerated() {
                 print("  选中\(index + 1): \(poi.name ?? "未知地点")")
             }
             
             if selectedPOIs.isEmpty {
                 // 如果没有合适的中间点，fallback到常规路线（使用真实数据）
-                print("⚠️ 没有找到合适的\(specialConfig.specialType.rawValue)中间点，使用常规路线")
                 self.calculateNormalRoutes(from: start, to: end, transportType: transportType, completion: completion)
                 return
             }
             
             // 第三步：计算多段路线
-            print("🛣️ 开始计算多段路线...")
             self.calculateMultiSegmentRoutes(from: start, to: end, waypoints: selectedPOIs, transportType: transportType, specialConfig: specialConfig) { specialRoutes in
                 
-                print("🛣️ 多段路线计算完成: 得到\(specialRoutes.count)条特殊路线")
                 
                 if specialRoutes.isEmpty {
                     // 如果特殊路线计算失败，fallback到常规路线
-                    print("⚠️ \(specialConfig.specialType.rawValue)路线计算失败，使用常规路线")
                     self.calculateNormalRoutes(from: start, to: end, transportType: transportType, completion: completion)
                     return
                 }
                 
                 // 第四步：同时计算一条常规路线作为对比
-                print("📊 计算常规路线作为对比...")
                 self.calculateNormalRoutes(from: start, to: end, transportType: transportType) { normalRoutes in
                     
-                    print("📊 路线对比:")
-                    print("  🎯 特殊路线: \(specialRoutes.count)条")
                     for (index, route) in specialRoutes.enumerated() {
                         print("    \(index + 1). \(route.type.rawValue) - \(route.distance) - \(route.duration)")
                         print("       描述: \(route.description)")
                         print("       亮点: \(route.highlights.joined(separator: ", "))")
                     }
                     
-                    print("  📊 常规路线: \(normalRoutes.count)条")
                     for (index, route) in normalRoutes.enumerated() {
                         print("    \(index + 1). \(route.type.rawValue) - \(route.distance) - \(route.duration)")
                     }
@@ -313,7 +260,6 @@ class RouteService {
                         allRoutes.append(firstNormalRoute)
                     }
                     
-                    print("✅ 最终返回\(allRoutes.count)条路线 (特殊路线\(specialRoutes.count)条 + 常规路线\(normalRoutes.count > 0 ? 1 : 0)条)")
                     completion(allRoutes)
                 }
             }
@@ -333,11 +279,6 @@ class RouteService {
             .distance(from: CLLocation(latitude: end.latitude, longitude: end.longitude))
         let searchRadius = min(max(distance / 2, 1000), 10000) // 最小1km，最大10km
         
-        print("🔍 POI搜索配置:")
-        print("  📍 搜索中心: (\(center.latitude), \(center.longitude))")
-        print("  📏 起终点距离: \(Int(distance))米")
-        print("  🎯 搜索半径: \(Int(searchRadius))米")
-        print("  🔤 搜索关键词: \(specialConfig.priorityKeywords)")
         
         let region = MKCoordinateRegion(
             center: center,
@@ -352,8 +293,6 @@ class RouteService {
         for (keywordIndex, keyword) in specialConfig.priorityKeywords.prefix(3).enumerated() { // 限制搜索关键词数量
             searchGroup.enter()
             
-            print("  🔍 搜索关键词\(keywordIndex + 1): \(keyword)")
-            
             let request = MKLocalSearch.Request()
             request.naturalLanguageQuery = keyword
             request.region = region
@@ -363,25 +302,21 @@ class RouteService {
                 defer { searchGroup.leave() }
                 
                 if let error = error {
-                    print("    ❌ 搜索\(keyword)失败: \(error.localizedDescription)")
                     return
                 }
                 
                 if let response = response {
                     let results = Array(response.mapItems.prefix(5)) // 每个关键词最多5个结果
-                    print("    ✅ 搜索\(keyword)成功: 找到\(results.count)个结果")
                     for (index, item) in results.enumerated() {
                         print("      \(index + 1). \(item.name ?? "未知") - \(item.phoneNumber ?? "无电话")")
                     }
                     allPOIs.append(contentsOf: results)
                 } else {
-                    print("    ⚠️ 搜索\(keyword)无结果")
                 }
             }
         }
         
         searchGroup.notify(queue: .main) {
-            print("🔍 POI搜索完成: 共找到\(allPOIs.count)个地点")
             completion(allPOIs)
         }
     }
@@ -431,14 +366,9 @@ class RouteService {
         
         guard let waypoint = waypoints.first,
               let waypointCoordinate = waypoint.placemark.location?.coordinate else {
-            print("❌ 无法获取中间点坐标")
             completion([])
             return
         }
-        
-        print("🛣️ 开始计算多段路线:")
-        print("  📍 第一段: 起点 -> \(waypoint.name ?? "中间点")")
-        print("  📍 第二段: \(waypoint.name ?? "中间点") -> 终点")
         
         let routeGroup = DispatchGroup()
         var firstSegment: MKRoute?
@@ -452,21 +382,14 @@ class RouteService {
         firstRequest.destination = waypoint
         firstRequest.transportType = transportType.mkDirectionsTransportType
         
-        print("  🔄 计算第一段路线...")
         let firstDirections = MKDirections(request: firstRequest)
         firstDirections.calculate { response, error in
             defer { routeGroup.leave() }
             if let route = response?.routes.first {
                 firstSegment = route
-                print("  ✅ 第一段路线成功:")
-                print("    📏 距离: \(route.distance)米")
-                print("    ⏱️ 时间: \(route.expectedTravelTime)秒")
-                print("    📊 数据来源: MapKit真实数据")
             } else {
                 hasError = true
-                print("  ❌ 第一段路线失败:")
                 if let error = error {
-                    print("    错误: \(error.localizedDescription)")
                 }
             }
         }
@@ -478,21 +401,14 @@ class RouteService {
         secondRequest.destination = MKMapItem(placemark: MKPlacemark(coordinate: end))
         secondRequest.transportType = transportType.mkDirectionsTransportType
         
-        print("  🔄 计算第二段路线...")
         let secondDirections = MKDirections(request: secondRequest)
         secondDirections.calculate { response, error in
             defer { routeGroup.leave() }
             if let route = response?.routes.first {
                 secondSegment = route
-                print("  ✅ 第二段路线成功:")
-                print("    📏 距离: \(route.distance)米")
-                print("    ⏱️ 时间: \(route.expectedTravelTime)秒")
-                print("    📊 数据来源: MapKit真实数据")
             } else {
                 hasError = true
-                print("  ❌ 第二段路线失败:")
                 if let error = error {
-                    print("    错误: \(error.localizedDescription)")
                 }
             }
         }
@@ -502,22 +418,13 @@ class RouteService {
                   let first = firstSegment,
                   let second = secondSegment else {
                 // 如果多段路线计算失败，返回空数组，让上层fallback到常规路线
-                print("❌ 多段路线计算失败，无法获取真实的\(specialConfig.specialType.rawValue)路线")
                 completion([])
                 return
             }
             
-            print("🔗 开始拼接路线...")
             
             // 拼接路线信息
             let combinedRoute = self.combineRoutes(first: first, second: second, waypoint: waypoint, specialConfig: specialConfig, transportType: transportType)
-            
-            print("✅ 路线拼接完成:")
-            print("  🎯 路线类型: \(combinedRoute.specialRouteType.rawValue)")
-            print("  📏 总距离: \(combinedRoute.distance)")
-            print("  ⏱️ 总时间: \(combinedRoute.duration)")
-            print("  💰 价格: \(combinedRoute.price)")
-            print("  📝 描述: \(combinedRoute.description)")
             
             completion([combinedRoute])
         }
@@ -526,11 +433,6 @@ class RouteService {
     // 拼接两段路线 - 使用真实的路线数据
     private func combineRoutes(first: MKRoute, second: MKRoute, waypoint: MKMapItem, specialConfig: SpecialRouteConfig, transportType: TransportationType) -> RouteInfo {
         
-        print("🔗 路线拼接详情:")
-        print("  📏 第一段距离: \(first.distance)米 (\(String(format: "%.1f公里", first.distance / 1000)))")
-        print("  📏 第二段距离: \(second.distance)米 (\(String(format: "%.1f公里", second.distance / 1000)))")
-        print("  ⏱️ 第一段时间: \(first.expectedTravelTime)秒 (\(String(format: "%.0f分钟", first.expectedTravelTime / 60)))")
-        print("  ⏱️ 第二段时间: \(second.expectedTravelTime)秒 (\(String(format: "%.0f分钟", second.expectedTravelTime / 60)))")
         
         // 使用真实的距离和时间数据
         let totalDistance = first.distance + second.distance
@@ -539,36 +441,22 @@ class RouteService {
         let distance = String(format: "%.1f公里", totalDistance / 1000)
         let duration = String(format: "%.0f分钟", totalTime / 60)
         
-        print("  📊 拼接结果:")
-        print("    📏 总距离: \(totalDistance)米 -> \(distance)")
-        print("    ⏱️ 总时间: \(totalTime)秒 -> \(duration)")
-        print("    📊 数据来源: MapKit真实数据拼接")
-        
         // 价格设置为免费
         let price = ""
-        print("    💰 价格: \(price) (免费)")
         
         // 生成特殊路线的描述和亮点
         let (description, highlights) = self.generateSpecialRouteDescription(specialConfig: specialConfig, waypoint: waypoint)
-        print("    📝 路线描述: \(description)")
-        print("    ⭐ 路线亮点: \(highlights.joined(separator: ", "))")
         
         // 合并导航指令 - 修复版
         let firstInstructions = generateNavigationInstructions(for: first, transportType: transportType)
         let secondInstructions = generateNavigationInstructions(for: second, transportType: transportType)
         
-        print("    🧭 DEBUG: 指令合并前分析:")
-        print("      第一段指令数: \(firstInstructions.count)")
-        print("      第一段最后一条: \(firstInstructions.last?.instruction ?? "无")")
-        print("      第二段指令数: \(secondInstructions.count)")
-        print("      第二段前两条: \(secondInstructions.prefix(2).map { $0.instruction })")
         
         var combinedInstructions: [NavigationInstruction] = []
         
         // 1. 添加第一段指令，但排除最后的"到达目的地"
         let firstValidInstructions = firstInstructions.dropLast() // 去掉"到达目的地"
         combinedInstructions.append(contentsOf: firstValidInstructions)
-        print("      添加第一段有效指令: \(firstValidInstructions.count)条")
         
         // 2. 在中间点添加特殊指令
         let waypointInstruction = NavigationInstruction(
@@ -578,7 +466,6 @@ class RouteService {
             coordinate: waypoint.placemark.coordinate
         )
         combinedInstructions.append(waypointInstruction)
-        print("      添加中间点指令: 途径\(waypoint.name ?? "兴趣点")")
         
         // 3. 添加第二段指令，排除"开始导航"但保留所有实际导航指令
         let secondValidInstructions: [NavigationInstruction]
@@ -587,36 +474,17 @@ class RouteService {
             secondInstructions.first?.instruction.contains("出发") ?? false) {
             // 如果第一条是"开始导航"类型，则跳过
             secondValidInstructions = Array(secondInstructions.dropFirst())
-            print("      第二段跳过开始指令，添加: \(secondValidInstructions.count)条")
         } else {
             // 否则保留所有指令
             secondValidInstructions = secondInstructions
-            print("      第二段保留所有指令: \(secondValidInstructions.count)条")
         }
         
         combinedInstructions.append(contentsOf: secondValidInstructions)
         
-        print("    🧭 导航指令合并完成:")
-        print("      第一段有效指令: \(firstValidInstructions.count)条")
-        print("      中间点指令: 1条")
-        print("      第二段有效指令: \(secondValidInstructions.count)条")
-        print("      总计: \(combinedInstructions.count)条")
-        
-        // Debug: 打印合并后的关键指令
-        print("    🧭 合并后指令预览:")
-        for (index, instruction) in combinedInstructions.enumerated() {
-            if index < 3 || index >= combinedInstructions.count - 3 ||
-               instruction.instruction.contains("途径") {
-                print("      \(index + 1). \(instruction.instruction)")
-            } else if index == 3 {
-                print("      ... (省略中间指令)")
-            }
-        }
         
         // 基于真实距离确定难度
         let difficulty: RouteDifficulty = totalDistance / 1000 < 5 ? .easy : (totalDistance / 1000 < 15 ? .medium : .hard)
-        print("    📊 路线难度: \(difficulty.rawValue) (基于总距离\(String(format: "%.1f公里", totalDistance / 1000)))")
-        
+      
         return RouteInfo(
             type: .recommended,
             transportType: transportType,
@@ -662,12 +530,11 @@ class RouteService {
     
     // 保留原有方法但更新逻辑
     private func generateSimulatedNormalRoutes(from start: CLLocationCoordinate2D, to end: CLLocationCoordinate2D, transportType: TransportationType) -> [RouteInfo] {
-        print("❌ 警告：无法获取\(transportType.rawValue)的真实路线数据")
-        print("   📊 数据状态：返回空数组，不提供假数据")
+        
         return []
     }
     
-    // MARK: - 🧭 导航指令生成 (简化版)
+  
     
     // 转向类型枚举 - 简化版
     private enum TurnDirection {
@@ -697,11 +564,7 @@ class RouteService {
     
     // 修正后的真实路线导航指令生成方法
     private func generateNavigationInstructions(for route: MKRoute, transportType: TransportationType) -> [NavigationInstruction] {
-        print("🧭 DEBUG: 开始生成真实路线导航指令")
-        print("  🛣️ 路线步骤数: \(route.steps.count)")
-        print("  📏 总距离: \(route.distance)米")
-        print("  ⏱️ 总时间: \(route.expectedTravelTime)秒")
-        
+       
         var instructions: [NavigationInstruction] = []
         var lastCoordinate: CLLocationCoordinate2D? = nil
         
@@ -724,7 +587,7 @@ class RouteService {
                 let distance = lastLocation.distance(from: currentLocation)
                 
                 if distance < 20 {
-                    print("    跳过: 与上一个点距离小于20米 (\(Int(distance))米)")
+                    
                     continue
                 }
             }
@@ -732,16 +595,16 @@ class RouteService {
             let instruction: String
             let icon: String
             
-            print("  🧭 步骤\(index): \(step.instructions)")
+            
             
             if index == 0 {
                 instruction = "开始导航"
                 icon = "location.fill"
-                print("    结果: 开始导航")
+              
             } else if index == steps.count - 1 {
                 instruction = "到达目的地"
                 icon = "flag.fill"
-                print("    结果: 到达目的地")
+               
             } else {
                 // 优先解析MapKit提供的导航指令
                 let parsedResult = parseMapKitInstruction(step.instructions)
@@ -749,14 +612,13 @@ class RouteService {
                 if let result = parsedResult {
                     instruction = result.instruction
                     icon = result.icon
-                    print("    结果: \(instruction) (MapKit指令解析)")
+                  
                 } else {
                     // 如果MapKit指令无法解析，使用几何计算
-                    print("    MapKit指令无法解析，尝试几何计算...")
+                    
                     let geometricResult = calculateTurnDirectionFromStep(step, previousStep: index > 0 ? steps[index-1] : nil)
                     instruction = geometricResult.instruction
                     icon = geometricResult.icon
-                    print("    结果: \(instruction) (几何计算)")
                 }
             }
             
@@ -771,11 +633,10 @@ class RouteService {
             lastCoordinate = coordinate // 更新上一个坐标点
         }
         
-        print("🧭 DEBUG: 真实路线导航指令生成完成，共\(instructions.count)条指令")
         return instructions
     }
     
-    // 解析MapKit指令 - 简化版
+    // 解析MapKit指令
     private func parseMapKitInstruction(_ instruction: String) -> (instruction: String, icon: String)? {
         let lower = instruction.lowercased()
         
@@ -840,10 +701,6 @@ class RouteService {
         let midCoord = points[midIndex].coordinate
         let endCoord = points[step.polyline.pointCount - 1].coordinate
         
-        print("      几何计算使用坐标:")
-        print("        起点: (\(String(format: "%.6f", startCoord.latitude)), \(String(format: "%.6f", startCoord.longitude)))")
-        print("        中点: (\(String(format: "%.6f", midCoord.latitude)), \(String(format: "%.6f", midCoord.longitude)))")
-        print("        终点: (\(String(format: "%.6f", endCoord.latitude)), \(String(format: "%.6f", endCoord.longitude)))")
         
         let turnDirection = calculatePreciseTurnDirection(previous: startCoord, current: midCoord, next: endCoord)
         
@@ -862,11 +719,6 @@ class RouteService {
         let rawAngleDiff = bearing2 - bearing1
         let angleDiff = normalizeAngle(rawAngleDiff)
         
-        print("    🧭 精确转向计算:")
-        print("      第一段方位角: \(String(format: "%.1f", bearing1))°")
-        print("      第二段方位角: \(String(format: "%.1f", bearing2))°")
-        print("      原始角度差: \(String(format: "%.1f", rawAngleDiff))°")
-        print("      标准化角度差: \(String(format: "%.1f", angleDiff))°")
         
         // 根据角度差确定转向类型 - 简化为四种基本转向
         let turnDirection: TurnDirection
@@ -874,19 +726,16 @@ class RouteService {
         
         if absAngle < 45 {
             turnDirection = .straight
-            print("      判定: 直行 (角度差 < 45°)")
         } else if absAngle < 135 {
             turnDirection = angleDiff > 0 ? .right : .left
-            print("      判定: \(angleDiff > 0 ? "右转" : "左转") (45° ≤ 角度差 < 135°)")
         } else {
             turnDirection = .uTurn
-            print("      判定: 掉头 (角度差 ≥ 135°)")
         }
         
         return turnDirection
     }
     
-    // 计算地理方位角 - 修正版
+    // 计算地理方位角
     private func calculateGeographicBearing(from start: CLLocationCoordinate2D, to end: CLLocationCoordinate2D) -> Double {
         let lat1 = start.latitude * .pi / 180
         let lat2 = end.latitude * .pi / 180

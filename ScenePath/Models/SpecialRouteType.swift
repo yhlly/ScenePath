@@ -1,9 +1,4 @@
-//
 //  SpecialRouteType.swift
-//  ScenePath
-//
-//  特殊路线类型枚举
-//
 
 import SwiftUI
 

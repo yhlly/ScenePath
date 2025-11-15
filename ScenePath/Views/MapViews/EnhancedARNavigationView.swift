@@ -1,9 +1,4 @@
-//
 //  EnhancedARNavigationView.swift
-//  ScenePath
-//
-//  基于实时位置的AR导航视图 - 简化版本
-//
 
 import SwiftUI
 import ARKit
@@ -367,12 +362,10 @@ struct EnhancedARNavigationView: View {
             }
         }
         .onAppear {
-            print("🧭 DEBUG: EnhancedARNavigationView onAppear")
             setupLocationManager()
             setupCollectionManager()
         }
         .onDisappear {
-            print("🧭 DEBUG: EnhancedARNavigationView onDisappear")
             // 停止导航模式
             locationManager.stopNavigation()
         }
@@ -392,7 +385,6 @@ struct EnhancedARNavigationView: View {
         }
     }
     
-    // MARK: - 导航逻辑方法
     
     // 初始化位置管理器
     private func setupLocationManager() {
@@ -432,7 +424,6 @@ struct EnhancedARNavigationView: View {
         
         // 如果接近当前导航点（在30米内），自动进入下一个导航点
         if distance < 30 && currentLocationIndex < route.instructions.count - 1 {
-            print("🧭 接近导航点，自动前进")
             withAnimation(.easeInOut) {
                 currentLocationIndex += 1
             }
@@ -453,8 +444,6 @@ struct EnhancedARNavigationView: View {
             
             // 如果偏离超过200米，建议重新计算路线
             if deviation > 200 && !recalculatingRoute {
-                print("🧭 严重偏离路线: \(Int(deviation))米")
-                // 这里可以添加震动或声音提醒
             }
         }
     }
@@ -491,7 +480,6 @@ struct EnhancedARNavigationView: View {
         }
     }
     
-    // MARK: - 辅助方法
     
     // 设置收集管理器
     private func setupCollectionManager() {
@@ -519,7 +507,6 @@ struct EnhancedARNavigationView: View {
     }
 }
 
-// MARK: - 辅助组件
 
 // 路线偏离警告组件
 struct RouteDeviationWarning: View {
@@ -563,7 +550,7 @@ struct RouteDeviationWarning: View {
     }
 }
 
-// MARK: - 导航地图视图
+// 导航地图视图
 struct NavigationMapView: UIViewRepresentable {
     let route: MKRoute?
     @Binding var userLocation: CLLocationCoordinate2D?

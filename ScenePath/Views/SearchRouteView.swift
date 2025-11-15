@@ -1,9 +1,4 @@
-//
 //  SearchRouteView.swift
-//  ScenePath
-//
-//  搜索和路线选择界面 - 修复UI布局问题
-//
 
 import SwiftUI
 import MapKit

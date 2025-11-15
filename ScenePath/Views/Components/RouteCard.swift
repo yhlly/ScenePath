@@ -1,9 +1,4 @@
-//
 //  RouteCard.swift
-//  ScenePath
-//
-//  路线卡片组件 - 修复版
-//
 
 import SwiftUI
 

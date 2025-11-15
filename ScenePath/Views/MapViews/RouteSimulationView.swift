@@ -1,9 +1,4 @@
-//
 //  RouteSimulationView.swift
-//  ScenePath
-//
-//  路线模拟视图 - 简化版本
-//
 
 import SwiftUI
 import MapKit

@@ -1,9 +1,4 @@
-//
 //  TransportationType.swift
-//  ScenePath
-//
-//  交通方式枚举
-//
 
 import SwiftUI
 import MapKit

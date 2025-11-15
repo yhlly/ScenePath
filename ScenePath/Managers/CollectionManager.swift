@@ -24,18 +24,13 @@ class CollectionManager {
     
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
-        print("🎯 DEBUG: CollectionManager 初始化")
         loadCollectedItems()
     }
     
     // 基于特殊路线类型和导航指令生成可收集点
     func generateCollectiblePoints(for specialRouteType: SpecialRouteType, instructions: [NavigationInstruction]) {
-        print("🎯 DEBUG: generateCollectiblePoints 开始")
-        print("  🎯 路线类型: \(specialRouteType.rawValue)")
-        print("  🎯 指令数量: \(instructions.count)")
         
         guard specialRouteType != .none else {
-            print("  ⚠️ 常规路线，不生成收集点")
             availableCollectibles = []
             return
         }
@@ -44,7 +39,6 @@ class CollectionManager {
         
         // 根据特殊路线类型确定收集点类别
         let categories = getCategoriesForRouteType(specialRouteType)
-        print("  🎯 可用类别: \(categories.map { $0.rawValue })")
         
         // 为路线上的关键点生成收集点
         for (index, instruction) in instructions.enumerated() {
@@ -57,7 +51,6 @@ class CollectionManager {
                     routeType: specialRouteType
                 )
                 points.append(point)
-                print("  📍 生成收集点 \(points.count): \(point.name) (\(point.category.rawValue))")
             }
         }
         
@@ -70,10 +63,7 @@ class CollectionManager {
         )
         points.append(contentsOf: extraPoints)
         
-        print("  📍 额外生成 \(extraPoints.count) 个收集点")
-        
         availableCollectibles = points
-        print("🎯 DEBUG: 总共生成了 \(points.count) 个收集点")
         
         // 打印所有收集点详情
         for (index, point) in points.enumerated() {
@@ -87,12 +77,9 @@ class CollectionManager {
     // 更新用户位置并检查可收集的点
     func updateLocation(_ location: CLLocationCoordinate2D) {
         currentLocation = location
-        print("🎯 DEBUG: updateLocation")
-        print("  📍 新位置: (\(String(format: "%.4f", location.latitude)), \(String(format: "%.4f", location.longitude)))")
         
         // 计算范围内的收集点
         let inRange = collectiblesInRange(of: location)
-        print("  🎯 范围内收集点: \(inRange.count) 个")
         
         for collectible in inRange {
             let distance = CLLocation(latitude: location.latitude, longitude: location.longitude)
@@ -107,7 +94,6 @@ class CollectionManager {
         
         let inRange = availableCollectibles.filter { point in
             if point.isCollected {
-                print("🎯 DEBUG: \(point.name) 已收集，跳过")
                 return false
             }
             
@@ -116,26 +102,16 @@ class CollectionManager {
             let distance = userLocation.distance(from: pointLocation)
             let isInRange = distance <= collectionRadius
             
-            if isInRange {
-                print("🎯 DEBUG: \(point.name) 在范围内 (\(Int(distance))米)")
-            }
-            
             return isInRange
         }
         
-        print("🎯 DEBUG: collectiblesInRange 返回 \(inRange.count) 个收集点")
         return inRange
     }
     
     // 收集物品
     func collectItem(_ point: CollectiblePoint, routeType: SpecialRouteType) {
-        print("🎯 DEBUG: collectItem 开始")
-        print("  🎯 收集点: \(point.name)")
-        print("  🎯 类别: \(point.category.rawValue)")
-        print("  🎯 路线类型: \(routeType.rawValue)")
         
         guard let context = modelContext else {
-            print("  ❌ ModelContext 为空")
             return
         }
         
@@ -146,15 +122,10 @@ class CollectionManager {
                                          longitude: point.coordinate.longitude))
             let isSameTypeAndLocation = distance < 50 && item.category == point.category
             
-            if isSameTypeAndLocation {
-                print("  🎯 DEBUG: 发现重复收集 - \(item.name) 距离: \(Int(distance))米")
-            }
-            
             return isSameTypeAndLocation
         }
         
         if alreadyCollected {
-            print("  ⚠️ 物品已收集过，跳过")
             return
         }
         
@@ -167,7 +138,6 @@ class CollectionManager {
             description: point.description
         )
         
-        print("  🎯 创建新收集物品: \(newItem.name)")
         
         // 保存到SwiftData
         context.insert(newItem)
@@ -176,26 +146,18 @@ class CollectionManager {
             try context.save()
             collectedItems.append(newItem)
             
-            print("  ✅ 收集成功！")
-            print("    - 物品ID: \(newItem.id)")
-            print("    - 收集时间: \(newItem.collectedAt)")
-            print("    - 总收集数: \(collectedItems.count)")
             
             // 更新可收集点状态
             updateCollectionStatus()
             
         } catch {
-            print("  ❌ 收集失败: \(error.localizedDescription)")
-            print("    - 错误详情: \(error)")
         }
     }
     
     // 加载已收集的物品
     private func loadCollectedItems() {
-        print("🎯 DEBUG: loadCollectedItems 开始")
         
         guard let context = modelContext else {
-            print("  ❌ ModelContext 为空")
             return
         }
         
@@ -204,7 +166,6 @@ class CollectionManager {
                 sortBy: [SortDescriptor(\.collectedAt, order: .reverse)]
             )
             collectedItems = try context.fetch(descriptor)
-            print("  ✅ 成功加载 \(collectedItems.count) 个已收集物品")
             
             // 打印已收集物品详情
             for (index, item) in collectedItems.enumerated() {
@@ -212,14 +173,12 @@ class CollectionManager {
             }
             
         } catch {
-            print("  ❌ 加载收集物品失败: \(error.localizedDescription)")
             collectedItems = []
         }
     }
     
     // 更新收集状态
     private func updateCollectionStatus() {
-        print("🎯 DEBUG: updateCollectionStatus 开始")
         
         var updatedCollectibles: [CollectiblePoint] = []
         
@@ -242,14 +201,12 @@ class CollectionManager {
             updatedCollectibles.append(updatedPoint)
             
             if isCollected && !point.isCollected {
-                print("  🎯 标记为已收集: \(point.name)")
             }
         }
         
         availableCollectibles = updatedCollectibles
         
         let collectedCount = availableCollectibles.filter { $0.isCollected }.count
-        print("  📊 状态更新完成: \(collectedCount)/\(availableCollectibles.count) 已收集")
     }
     
     // 根据路线类型获取收集点类别
@@ -267,7 +224,6 @@ class CollectionManager {
             categories = []
         }
         
-        print("🎯 DEBUG: 路线类型 \(routeType.rawValue) 对应类别: \(categories.map { $0.rawValue })")
         return categories
     }
     
@@ -316,17 +272,11 @@ class CollectionManager {
                         // 更新收集点
                         self?.availableCollectibles[index] = updatedPoint
                         
-                        print("🎯 DEBUG: 更新收集点名称 - 原名: \(name), 新名: \(poiName)")
                     }
                 }
             }
         }
-        
-        print("🎯 DEBUG: 生成收集点")
-        print("  📍 基础坐标: (\(String(format: "%.4f", coordinate.latitude)), \(String(format: "%.4f", coordinate.longitude)))")
-        print("  📍 偏移: 距离\(Int(distance))米, 角度\(String(format: "%.1f", angle * 180 / .pi))度")
-        print("  📍 最终坐标: (\(String(format: "%.4f", newCoordinate.latitude)), \(String(format: "%.4f", newCoordinate.longitude)))")
-        print("  🎯 临时名称: \(name)，将尝试获取实际POI")
+    
         
         return collectiblePoint
     }
@@ -355,14 +305,12 @@ class CollectionManager {
  response,
  error in
             if let error = error {
-                print("🔍 POI搜索失败: \(error.localizedDescription)")
                 completion(nil, nil)
                 return
             }
             
             guard let response = response,
  !response.mapItems.isEmpty else {
-                print("🔍 未找到附近的POI")
                 completion(nil, nil)
                 return
             }
@@ -426,17 +374,12 @@ class CollectionManager {
     
     // 生成随机收集点
     private func generateRandomCollectiblePoints(along instructions: [NavigationInstruction], categories: [CollectibleCategory], count: Int) -> [CollectiblePoint] {
-        print("🎯 DEBUG: generateRandomCollectiblePoints")
-        print("  🎯 需要生成: \(count) 个")
-        print("  🎯 指令数量: \(instructions.count)")
-        print("  🎯 类别: \(categories.map { $0.rawValue })")
         
         var points: [CollectiblePoint] = []
         
         for i in 0..<count {
             guard let randomInstruction = instructions.randomElement(),
                   let category = categories.randomElement() else {
-                print("    ❌ 第\(i+1)个点生成失败：无可用指令或类别")
                 continue
             }
             
@@ -446,10 +389,8 @@ class CollectionManager {
                 routeType: .food // 这里传入什么都可以，因为只是用来生成点位
             )
             points.append(point)
-            print("    ✅ 第\(i+1)个点: \(point.name)")
         }
         
-        print("  📊 实际生成: \(points.count) 个随机收集点")
         return points
     }
     
@@ -462,27 +403,18 @@ class CollectionManager {
         }
         
         let stats = (total: collectedItems.count, byCategory: byCategory)
-        print("🎯 DEBUG: getCollectionStats")
-        print("  📊 总数: \(stats.total)")
-        for (category, count) in byCategory {
-            print("  📊 \(category.rawValue): \(count)")
-        }
         
         return stats
     }
     
     // 清除所有收集点（用于调试）
     func clearAllCollectibles() {
-        print("🎯 DEBUG: clearAllCollectibles")
         availableCollectibles.removeAll()
-        print("  ✅ 已清除所有收集点")
     }
     
     // 强制刷新收集状态（用于调试）
     func refreshCollectionStatus() {
-        print("🎯 DEBUG: refreshCollectionStatus")
         loadCollectedItems()
         updateCollectionStatus()
-        print("  ✅ 刷新完成")
     }
 }

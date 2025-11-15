@@ -1,9 +1,4 @@
-//
 //  LocationSearchManager.swift
-//  ScenePath
-//
-//  位置搜索管理器
-//
 
 import Foundation
 import MapKit

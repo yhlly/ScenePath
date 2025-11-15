@@ -1,9 +1,4 @@
-//
 //  EnhancedARSceneView.swift
-//  ScenePath
-//
-//  简化的AR场景视图，专注于收集功能
-//
 
 import SwiftUI
 import ARKit
@@ -21,7 +16,6 @@ struct EnhancedARSceneView: UIViewRepresentable {
     let onCollectionTapped: (CollectiblePoint) -> Void
     
     func makeUIView(context: Context) -> ARSCNView {
-        print("🎯 DEBUG: 创建ARSCNView")
         
         let arView = ARSCNView()
         
@@ -33,9 +27,7 @@ struct EnhancedARSceneView: UIViewRepresentable {
         // 检查AR支持
         if ARWorldTrackingConfiguration.isSupported {
             arView.session.run(configuration)
-            print("  ✅ AR会话启动成功")
         } else {
-            print("  ❌ AR不支持")
         }
         
         arView.delegate = context.coordinator
@@ -53,12 +45,10 @@ struct EnhancedARSceneView: UIViewRepresentable {
         let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handleTap(_:)))
         arView.addGestureRecognizer(tapGesture)
         
-        print("  ✅ ARSCNView配置完成")
         return arView
     }
     
     func updateUIView(_ uiView: ARSCNView, context: Context) {
-        print("🎯 DEBUG: updateUIView 开始")
         
         context.coordinator.updateARContent(
             arView: uiView,
@@ -70,7 +60,6 @@ struct EnhancedARSceneView: UIViewRepresentable {
             onCollectionTapped: onCollectionTapped
         )
         
-        print("  ✅ updateUIView 完成")
     }
     
     func makeCoordinator() -> Coordinator {
@@ -92,14 +81,12 @@ struct EnhancedARSceneView: UIViewRepresentable {
             route: RouteInfo,
             onCollectionTapped: @escaping (CollectiblePoint) -> Void
         ) {
-            print("🎯 DEBUG: updateARContent 开始")
             
             // 清除之前的导航内容
             clearNavigationNodes()
             
             // 添加导航内容
             if let instruction = instruction {
-                print("  🧭 添加导航指令: \(instruction.instruction)")
                 createDirectionArrow(arView: arView, instruction: instruction)
                 createFloatingText(arView: arView, instruction: instruction)
                 createDistanceIndicator(arView: arView, instruction: instruction)
@@ -113,7 +100,6 @@ struct EnhancedARSceneView: UIViewRepresentable {
                 onCollectionTapped: onCollectionTapped
             )
             
-            print("  ✅ updateARContent 完成")
         }
         
         private func clearNavigationNodes() {
@@ -132,23 +118,19 @@ struct EnhancedARSceneView: UIViewRepresentable {
             collectionManager: CollectionManager,
             onCollectionTapped: @escaping (CollectiblePoint) -> Void
         ) {
-            print("🎯 DEBUG: updateCollectibleNodes 开始")
             
             guard let userLocation = userLocation else {
-                print("  ⚠️ 用户位置为空")
                 return
             }
             
             // 获取范围内的收集点
             let collectiblesInRange = collectionManager.collectiblesInRange(of: userLocation)
-            print("  🎯 范围内收集点: \(collectiblesInRange.count)个")
             
             // 移除不在范围内的收集点节点
             let currentCollectibleIds = Set(collectiblesInRange.map { $0.id.uuidString })
             let nodesToRemove = collectibleNodes.keys.filter { !currentCollectibleIds.contains($0) }
             
             for nodeId in nodesToRemove {
-                print("  🗑️ 移除收集点节点: \(collectibleNodes[nodeId]?.collectible.name ?? nodeId)")
                 collectibleNodes[nodeId]?.node.removeFromParentNode()
                 collectibleNodes.removeValue(forKey: nodeId)
             }
@@ -159,28 +141,23 @@ struct EnhancedARSceneView: UIViewRepresentable {
                 
                 if collectibleNodes[nodeId] == nil && !collectible.isCollected {
                     // 创建新的收集点节点
-                    print("  ➕ 创建收集点节点: \(collectible.name)")
                     
                     let collectibleNode = createCollectibleNode(for: collectible, userLocation: userLocation)
                     collectibleNode.name = nodeId // 设置节点名称以便识别
                     arView.scene.rootNode.addChildNode(collectibleNode)
                     collectibleNodes[nodeId] = (node: collectibleNode, collectible: collectible)
                     
-                    print("    ✅ 收集点节点创建成功: \(collectible.name)")
                 } else if collectible.isCollected && collectibleNodes[nodeId] != nil {
                     // 移除已收集的收集点
-                    print("  🗑️ 移除已收集的收集点: \(collectible.name)")
                     collectibleNodes[nodeId]?.node.removeFromParentNode()
                     collectibleNodes.removeValue(forKey: nodeId)
                 }
             }
             
-            print("  📊 当前显示的收集点节点: \(collectibleNodes.count)个")
         }
         
         // 创建收集点3D节点
         private func createCollectibleNode(for collectible: CollectiblePoint, userLocation: CLLocationCoordinate2D) -> SCNNode {
-            print("🎯 DEBUG: createCollectibleNode for \(collectible.name)")
             
             let node = SCNNode()
             
@@ -188,7 +165,6 @@ struct EnhancedARSceneView: UIViewRepresentable {
             let distance = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
                 .distance(from: CLLocation(latitude: collectible.coordinate.latitude, longitude: collectible.coordinate.longitude))
             
-            print("  📏 实际距离: \(Int(distance))米")
             
             // 计算方向角度
             let deltaLat = collectible.coordinate.latitude - userLocation.latitude
@@ -204,8 +180,6 @@ struct EnhancedARSceneView: UIViewRepresentable {
             
             node.position = SCNVector3(x, y, z)
             
-            print("  📍 AR位置: x=\(x), y=\(y), z=\(z)")
-            print("  🧭 方向角度: \(String(format: "%.1f", angle * 180 / .pi))度")
             
             // 创建收集点几何体 - 使用更明显的形状
             let sphere = SCNSphere(radius: 0.15) // 增大半径
@@ -264,7 +238,6 @@ struct EnhancedARSceneView: UIViewRepresentable {
             let repeatFloat = SCNAction.repeatForever(floatAction)
             node.runAction(repeatFloat)
             
-            print("  ✅ 收集点节点创建完成")
             return node
         }
         
@@ -298,21 +271,16 @@ struct EnhancedARSceneView: UIViewRepresentable {
         
         // 处理点击手势
         @objc func handleTap(_ gesture: UITapGestureRecognizer) {
-            print("🎯 DEBUG: handleTap 开始")
             
             guard let arView = gesture.view as? ARSCNView else {
-                print("  ❌ 无法获取ARSCNView")
                 return
             }
             
             let location = gesture.location(in: arView)
-            print("  👆 点击位置: (\(location.x), \(location.y))")
             
             let hitTestResults = arView.hitTest(location, options: nil)
-            print("  🎯 hitTest结果数量: \(hitTestResults.count)")
             
             for (index, result) in hitTestResults.enumerated() {
-                print("    结果\(index): node=\(result.node), parentName=\(result.node.parent?.name ?? "nil")")
                 
                 // 检查是否点击了收集点节点或其子节点
                 var targetNode = result.node
@@ -332,15 +300,12 @@ struct EnhancedARSceneView: UIViewRepresentable {
                 }
                 
                 if let nodeId = nodeId, let collectibleInfo = collectibleNodes[nodeId] {
-                    print("  ✅ 点击了收集点: \(collectibleInfo.collectible.name)")
                     
                     // 触发收集动画
                     triggerCollectionAnimation(node: collectibleInfo.node)
                     
                     // 调用收集回调
                     DispatchQueue.main.async {
-                        // 这里需要从coordinator传递回调，暂时先在这里处理
-                        // onCollectionTapped(collectibleInfo.collectible)
                     }
                     
                     // 移除节点
@@ -351,13 +316,11 @@ struct EnhancedARSceneView: UIViewRepresentable {
             }
             
             if hitTestResults.isEmpty {
-                print("  ⚠️ 没有点击到任何3D对象")
             }
         }
         
         // 触发收集动画
         private func triggerCollectionAnimation(node: SCNNode) {
-            print("🎯 DEBUG: triggerCollectionAnimation")
             
             // 停止之前的动画
             node.removeAllActions()
@@ -375,7 +338,6 @@ struct EnhancedARSceneView: UIViewRepresentable {
             ])
             
             node.runAction(sequence)
-            print("  ✅ 收集动画开始")
         }
         
         // 以下是原有的导航相关方法（简化版）
@@ -439,19 +401,15 @@ struct EnhancedARSceneView: UIViewRepresentable {
         // MARK: - ARSCNViewDelegate
         
         func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
-            print("🎯 DEBUG: AR renderer didAdd node")
         }
         
         func session(_ session: ARSession, didFailWithError error: Error) {
-            print("❌ AR会话失败: \(error.localizedDescription)")
         }
         
         func sessionWasInterrupted(_ session: ARSession) {
-            print("⚠️ AR会话被中断")
         }
         
         func sessionInterruptionEnded(_ session: ARSession) {
-            print("✅ AR会话中断结束")
         }
     }
 }

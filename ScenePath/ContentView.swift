@@ -1,9 +1,4 @@
-//
 //  ContentView.swift
-//  ScenePath
-//
-//  更新的主视图 - 修复收藏按钮位置和下拉框显示问题
-//
 
 import SwiftUI
 import MapKit
@@ -35,7 +30,7 @@ struct ContentView: View {
     // 特殊路线状态
     @State private var selectedSpecialRoute: SpecialRouteType = .none
     
-    // 新增：控制收集页面的显示
+    // 控制收集页面的显示
     @State private var showingCollection = false
     
     var body: some View {
@@ -196,7 +191,6 @@ struct ContentView: View {
     private func initializeCollectionManager() {
         if collectionManager == nil {
             collectionManager = CollectionManager(modelContext: modelContext)
-            print("🎯 CollectionManager 初始化完成")
         }
     }
     
@@ -207,11 +201,6 @@ struct ContentView: View {
             errorMessage = "请选择起点和终点"
             return
         }
-        
-        print("🔧 DEBUG: searchAllRoutes 开始")
-        print("  🎯 当前选择的特殊路线: \(selectedSpecialRoute.rawValue)")
-        print("  📍 起点: \(startSuggestion.displayText)")
-        print("  📍 终点: \(endSuggestion.displayText)")
         
         isSearching = true
         errorMessage = ""
@@ -242,7 +231,6 @@ struct ContentView: View {
                 DispatchQueue.main.async {
                     self.startCoordinate = startCoord
                     self.endCoordinate = endCoord
-                    print("🔧 DEBUG: 开始计算路线，特殊路线类型: \(self.selectedSpecialRoute.rawValue)")
                     self.calculateRoutesForAllTransportTypes(from: startCoord, to: endCoord)
                 }
             }
@@ -253,8 +241,6 @@ struct ContentView: View {
     func calculateRoutesForAllTransportTypes(from start: CLLocationCoordinate2D, to end: CLLocationCoordinate2D) {
         let group = DispatchGroup()
         
-        print("🔧 DEBUG: calculateRoutesForAllTransportTypes")
-        print("  🎯 使用的特殊路线类型: \(selectedSpecialRoute.rawValue)")
         
         for transportType in TransportationType.allCases {
             group.enter()
@@ -265,9 +251,6 @@ struct ContentView: View {
                 transportType: transportType
             )
             
-            print("🔧 DEBUG: 为\(transportType.rawValue)创建配置:")
-            print("  🎯 特殊路线类型: \(specialConfig.specialType.rawValue)")
-            print("  🔍 搜索关键词: \(specialConfig.priorityKeywords)")
             
             RouteService.shared.calculateRouteWithSpecialType(
                 from: start,
@@ -276,7 +259,6 @@ struct ContentView: View {
                 specialConfig: specialConfig
             ) { routeInfos in
                 DispatchQueue.main.async {
-                    print("🔧 DEBUG: \(transportType.rawValue)路线计算完成，返回\(routeInfos.count)条路线")
                     self.routes[transportType] = routeInfos
                     group.leave()
                 }
@@ -284,8 +266,6 @@ struct ContentView: View {
         }
         
         group.notify(queue: .main) {
-            print("🔧 DEBUG: 所有路线计算完成")
-            print("  📊 最终结果:")
             for (transport, routeList) in self.routes {
                 print("    \(transport.rawValue): \(routeList.count)条路线")
                 for (index, route) in routeList.enumerated() {

@@ -1,9 +1,4 @@
-//
 //  MapViewRepresentable.swift
-//  ScenePath
-//
-//  普通地图视图
-//
 
 import SwiftUI
 import MapKit

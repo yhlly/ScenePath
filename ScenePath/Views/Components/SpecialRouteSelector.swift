@@ -1,9 +1,4 @@
-//
 //  SpecialRouteSelector.swift
-//  ScenePath
-//
-//  特殊路线选择组件
-//
 
 import SwiftUI
 

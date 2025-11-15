@@ -1,9 +1,4 @@
-//
 //  RouteType.swift
-//  ScenePath
-//
-//  路线类型枚举 - 更新版
-//
 
 import SwiftUI
 

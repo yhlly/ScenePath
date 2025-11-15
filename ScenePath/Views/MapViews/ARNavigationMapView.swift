@@ -1,9 +1,4 @@
-//
 //  ARNavigationMapView.swift
-//  ScenePath
-//
-//  AR导航地图视图
-//
 
 import SwiftUI
 import MapKit
@@ -115,13 +110,13 @@ struct ARNavigationMapView: UIViewRepresentable {
             if let markerView = annotationView as? MKMarkerAnnotationView {
                 if annotation.title == "当前位置" {
                     markerView.markerTintColor = .systemRed
-                    markerView.glyphText = "📍"
+                    markerView.glyphText = "current"
                 } else if annotation.title == "起点" {
                     markerView.markerTintColor = .systemGreen
-                    markerView.glyphText = "🚀"
+                    markerView.glyphText = "start"
                 } else if annotation.title == "终点" {
                     markerView.markerTintColor = .systemBlue
-                    markerView.glyphText = "🏁"
+                    markerView.glyphText = "end"
                 }
             }
             

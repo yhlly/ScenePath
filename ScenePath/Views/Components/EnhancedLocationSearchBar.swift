@@ -1,9 +1,4 @@
-//
 //  EnhancedLocationSearchBar.swift
-//  ScenePath
-//
-//  增强的地点搜索框组件 - 修复下拉框显示问题
-//
 
 import SwiftUI
 

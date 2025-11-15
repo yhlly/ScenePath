@@ -1,9 +1,4 @@
-//
 //  CollectibleItem.swift
-//  ScenePath
-//
-//  收集物品的SwiftData模型
-//
 
 import Foundation
 import SwiftData
@@ -17,7 +12,7 @@ class CollectibleItem {
     var latitude: Double
     var longitude: Double
     var collectedAt: Date
-    var routeType: String // 在哪种特殊路线中收集的
+    var routeType: String 
     var itemDescription: String
     var iconName: String
     

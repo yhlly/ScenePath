@@ -1,16 +1,11 @@
-//
 //  RouteSimulationPlayer.swift
-//  ScenePath
-//
-//  路线模拟播放器 - 支持逐步沿路线前进
-//
 
 import Foundation
 import MapKit
 import CoreLocation
 import SwiftUI
 
-// 路线模拟播放器 - 允许用户按钮模拟行进
+// 用户模拟行进
 class RouteSimulationPlayer: ObservableObject {
     // 路线数据
     private var route: MKRoute?
@@ -54,7 +49,6 @@ class RouteSimulationPlayer: ObservableObject {
         // 平滑处理路线，确保点之间的距离合理
         routeCoordinates = smoothAndResamplePath(coordinates, desiredSpacing: stepDistance)
         
-        print("🚶 路线模拟器: 加载了\(routeCoordinates.count)个路线点")
     }
     
     // 重置到起点
@@ -81,7 +75,6 @@ class RouteSimulationPlayer: ObservableObject {
         
         // 已经到达终点
         if currentIndex >= routeCoordinates.count - 1 {
-            print("🚶 路线模拟器: 已到达终点")
             return
         }
         
@@ -98,7 +91,6 @@ class RouteSimulationPlayer: ObservableObject {
         // 通知位置变化
         notifyPositionChanged()
         
-        print("🚶 路线模拟器: 前进到点\(currentIndex)/\(routeCoordinates.count-1)")
     }
     
     // 向后移动一步
@@ -107,7 +99,6 @@ class RouteSimulationPlayer: ObservableObject {
         
         // 已经在起点
         if currentIndex <= 0 {
-            print("🚶 路线模拟器: 已在起点")
             return
         }
         
@@ -123,8 +114,6 @@ class RouteSimulationPlayer: ObservableObject {
         
         // 通知位置变化
         notifyPositionChanged()
-        
-        print("🚶 路线模拟器: 后退到点\(currentIndex)/\(routeCoordinates.count-1)")
     }
     
     // 开始自动播放
@@ -147,7 +136,6 @@ class RouteSimulationPlayer: ObservableObject {
             }
         }
         
-        print("🚶 路线模拟器: 开始自动播放，速度\(speed)x")
     }
     
     // 停止自动播放
@@ -155,7 +143,6 @@ class RouteSimulationPlayer: ObservableObject {
         isPlaying = false
         playTimer?.invalidate()
         playTimer = nil
-        print("🚶 路线模拟器: 停止自动播放")
     }
     
     // 获取完成百分比
@@ -194,8 +181,6 @@ class RouteSimulationPlayer: ObservableObject {
             onPositionChanged?(location, currentIndex)
         }
     }
-    
-    // MARK: - 辅助方法
     
     // 计算两点之间的朝向角度（0-360度，北为0，顺时针）
     private func calculateHeading(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D) -> Double {

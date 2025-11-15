@@ -1,9 +1,4 @@
-//
 //  ARNavigationView.swift
-//  ScenePath
-//
-//  真正的ARKit增强现实导航视图
-//
 
 import SwiftUI
 import ARKit
@@ -194,8 +189,6 @@ struct ARSceneView: UIViewRepresentable {
                 return 0
             }
         }
-        
-        // MARK: - ARSCNViewDelegate
         
         func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
             // 检测到平面时的处理

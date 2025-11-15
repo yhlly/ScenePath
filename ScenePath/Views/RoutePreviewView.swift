@@ -1,9 +1,4 @@
-//
 //  RoutePreviewView.swift
-//  ScenePath
-//
-//  路线预览界面
-//
 
 import SwiftUI
 import MapKit

@@ -1,9 +1,4 @@
-//
 //  CollectionView.swift
-//  ScenePath
-//
-//  收集物品展示页面
-//
 
 import SwiftUI
 import SwiftData

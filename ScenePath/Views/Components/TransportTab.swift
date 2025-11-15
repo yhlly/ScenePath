@@ -1,9 +1,4 @@
-//
 //  TransportTab.swift
-//  ScenePath
-//
-//  交通方式选择按钮 - 优化版
-//
 
 import SwiftUI
 
